@@ -137,6 +137,13 @@ var fishList = []Fish{
     {"Fish", "Rarefish", 1, 100, "./assets/rarefish.png"},
 }
 
+var poleList =[]Item{
+    {"Pole", "Half Decent Rod", 1, 100, "./assets/rod-half-decent"},
+    {"Pole", "Solid Rod n' Reel", 1, 1000, "./assets/rod-solid"},
+    {"Pole", "The Fishinator 2.0", 1, 2000, "./assets/rod-fishinator"},
+    {"Pole", "Rocket Rod", 1, 10000, "./assets/rod-rocket"},
+}
+
 // **Fishing Channels Map**
 // Stores channels for each player engaged in fishing.
 // Used to communicate between the fishing process and the player's catch attempt.
@@ -188,7 +195,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
     if err != nil {
         WarningLogger.Printf("Failed to load player state for %s: %v", playerID, err)
         // Create a new player if not found
-        player = &Player{ID: playerID, Conn: ws, X: rand.Intn(50), Y: rand.Intn(50)}
+        player = &Player{ID: playerID, Conn: ws, X: rand.Intn(50), Y: rand.Intn(50), Inventory: []Item{},}
         for isTileWater(player) {
             player.X = rand.Intn(50)
             player.Y = rand.Intn(50)
@@ -264,7 +271,10 @@ func savePlayerState(player *Player) error {
 
 
 func loadPlayerState(playerID string) (*Player, error) {
-    player := &Player{ID: playerID}
+    player := &Player{
+        ID: playerID,
+        Inventory: []Item{}, // Initialize inventory
+    }
 
     // Load player state
     query := `SELECT x, y, direction, facing_water, balance FROM players WHERE player_id = ?`
@@ -291,8 +301,6 @@ func loadPlayerState(playerID string) (*Player, error) {
         }
         player.Inventory = append(player.Inventory, item)
     }
-    
-
 
     return player, nil
 }
@@ -317,17 +325,22 @@ func sendInitialGameState(player *Player) {
     mu.Lock()
     defer mu.Unlock()
 
-    // Prepare the game state data.
-    gameState := map[string]interface{}{
-        "gameMap": gameMap,
-        "players": getAllPlayers(),
-		"inventory": player.Inventory,
+    // Ensure inventory is not null
+    if player.Inventory == nil {
+        player.Inventory = []Item{}
     }
 
-    // Create and send the initial game state message.
+    // Prepare the game state data
+    gameState := map[string]interface{}{
+        "gameMap":   gameMap,
+        "players":   getAllPlayers(),
+        "inventory": player.Inventory,
+    }
+
+    // Create and send the initial game state message
     initialMessage := Message{
-        Type: "gameState",
-        Data: gameState,
+        Type:   "gameState",
+        Data:   gameState,
         Player: player,
     }
     err := player.Conn.WriteJSON(initialMessage)
@@ -335,6 +348,7 @@ func sendInitialGameState(player *Player) {
         ErrorLogger.Println("Error sending initial game state:", err)
     }
 }
+
 
 // **Get All Players**
 // Returns a slice of all players (excluding their WebSocket connections).
@@ -665,7 +679,8 @@ func addToPlayerBalance(player *Player, item Item) {
     DebugLogger.Printf("DEBUG: New balance for player %s: %d", player.ID, player.Balance)
 }
 
-
+// TODO - create subtract from player balance
+// TODO - create functionality to send what items are available to buy, keep in mind that eventually we'll be locking certain items behind progression checks
 
 // **Get Facing Tile**
 // Determines the tile in front of the player based on their direction.
@@ -838,22 +853,16 @@ func addItemToInventory(player *Player, item Item) {
     mu.Lock()
     defer mu.Unlock()
 
+    // Ensure inventory is initialized
+    if player.Inventory == nil {
+        player.Inventory = []Item{}
+    }
+
     // Check if the item already exists in the inventory
     for i, invItem := range player.Inventory {
         if invItem.Name == item.Name {
-            // Increase the quantity
             player.Inventory[i].Quantity += item.Quantity
-
-            // Update the item quantity in the database
-            invQuery := `
-                UPDATE inventory 
-                SET quantity = ? 
-                WHERE player_id = ? AND item_name = ?
-            `
-            _, err := db.Exec(invQuery, player.Inventory[i].Quantity, player.ID, item.Name)
-            if err != nil {
-                ErrorLogger.Printf("Failed to update inventory in DB for player %s: %v", player.ID, err)
-            }
+            // Update database...
             return
         }
     }

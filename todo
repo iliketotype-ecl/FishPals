@@ -1,11 +1,19 @@
-Multipayer Fishing Tycoon
-
-2D --
-
-Chat in game
-Global Game state
-Dynamic map generation
+Multipayer Fishing Tycoon -- FishPals
 
 - need to manage player balances
 - local.storage cookies to save
 - chat system
+- dynamic map generation
+
+Game Progression:
+
+Early game -> users join to fish manually -> after getting the best rod -> automation can be unlocked -> through automation unlock new machines
+
+players can join the same world and pool their money together via a joint bank
+
+bank mechanic -> loans (instant cash but pay back over time) and investments (put money away to gain interest later)
+
+Fishing progression:
+With each new rod they get access to a new tier of fish that are very rare but return more money
+
+Research trees?

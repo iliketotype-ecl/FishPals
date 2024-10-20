@@ -2,6 +2,7 @@
 :root {
   --bg-color: #0099ff;
   --accent-color: #1b3e80;
+  --tertiary-color: #4b78cc;
   --text-color: #ffffff;
   --font-family: "Press Start 2P", cursive;
 }
@@ -277,4 +278,37 @@ button:active {
   font-family: var(--font-family);
   cursor: pointer;
   margin: 5px;
+}
+
+/* Tab container styling */
+.market-tabs {
+  display: flex;
+  margin-bottom: 10px;
+  border-bottom: 4px solid var(--accent-color);
+}
+
+/* Individual tab button styling */
+.market-tabs button {
+  flex: 1;
+  padding: 10px 20px;
+  font-family: var(--font-family);
+  font-size: 16px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border: none;
+  outline: none;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Active tab button styling */
+.market-tabs button.active {
+  background-color: var(--accent-color);
+  color: var(--text-color);
+  font-weight: bold;
+}
+
+/* Hover state for tabs */
+.market-tabs button:hover {
+  background-color: #162d5c; /* Slightly darker accent color */
 }

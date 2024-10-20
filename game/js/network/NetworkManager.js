@@ -68,7 +68,10 @@ class NetworkManager {
         this.game.fishingMechanic.handleFishingEvent(message.data);
         break;
       case "sellEvent":
-        this.game.marketMechanic.handleItemSellEvent(message.data);
+        this.game.marketMechanic.handleMarketEvent(message.data);
+        break;
+      case "buyEvent":
+        this.game.marketMechanic.handleMarketEvent(message.data);
         break;
       case "inventoryUpdate":
         this.game.updateInventory(message.data);

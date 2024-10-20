@@ -30,9 +30,23 @@
         <div class="modal-content">
           <span id="fish-market-close" class="close">&times;</span>
           <h2>Fish Market</h2>
-          <div id="market-items-container">
+
+          <!-- Tabs for Sell and Buy -->
+          <div class="market-tabs">
+            <button id="sell-tab" class="active">Sell</button>
+            <button id="buy-tab">Buy</button>
+          </div>
+
+          <!-- Sell Items Container -->
+          <div id="market-sell-items-container">
             <!-- Fish for selling will be displayed here -->
           </div>
+
+          <!-- Buy Items Container -->
+          <div id="market-buy-items-container" style="display: none">
+            <!-- Items for buying will be displayed here -->
+          </div>
+
           <h3>Your Money: $<span id="player-money">0</span></h3>
         </div>
       </div>

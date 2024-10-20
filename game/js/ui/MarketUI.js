@@ -6,11 +6,16 @@ class MarketUI {
     // Initialize DOM elements
     this.marketModal = document.getElementById("fish-market-modal");
     this.marketCloseButton = document.getElementById("fish-market-close");
-    this.marketItemsContainer = document.getElementById(
-      "market-items-container"
+    this.marketSellItemsContainer = document.getElementById(
+      "market-sell-items-container"
+    );
+    this.marketBuyItemsContainer = document.getElementById(
+      "market-buy-items-container"
     );
     this.playerMoneyDisplay = document.getElementById("player-money");
     this.marketButton = document.getElementById("market-button");
+    this.sellTab = document.getElementById("sell-tab");
+    this.buyTab = document.getElementById("buy-tab");
 
     // Bind event listeners
     this.marketButton.addEventListener("click", this.openMarket.bind(this));
@@ -18,6 +23,8 @@ class MarketUI {
       "click",
       this.closeMarket.bind(this)
     );
+    this.sellTab.addEventListener("click", this.showSellTab.bind(this));
+    this.buyTab.addEventListener("click", this.showBuyTab.bind(this));
 
     // Close the modal when clicking outside of it
     globalThis.addEventListener("click", (event) => {
@@ -29,7 +36,8 @@ class MarketUI {
 
   openMarket() {
     this.marketModal.style.display = "block";
-    this.renderMarketItems();
+    this.renderSellItems();
+    this.renderBuyItems();
     this.updatePlayerMoney();
   }
 
@@ -37,12 +45,26 @@ class MarketUI {
     this.marketModal.style.display = "none";
   }
 
-  renderMarketItems() {
+  showSellTab() {
+    this.sellTab.classList.add("active");
+    this.buyTab.classList.remove("active");
+    this.marketSellItemsContainer.style.display = "block";
+    this.marketBuyItemsContainer.style.display = "none";
+  }
+
+  showBuyTab() {
+    this.sellTab.classList.remove("active");
+    this.buyTab.classList.add("active");
+    this.marketSellItemsContainer.style.display = "none";
+    this.marketBuyItemsContainer.style.display = "block";
+  }
+
+  renderSellItems() {
     // Clear the container
-    this.marketItemsContainer.innerHTML = "";
+    this.marketSellItemsContainer.innerHTML = "";
 
     // Get the player's inventory
-    const inventory = this.game.localPlayer.inventory;
+    const inventory = this.game.localPlayer.inventory || [];
     console.log("Inventory: ", inventory);
 
     // Filter to only include fish items
@@ -50,25 +72,23 @@ class MarketUI {
     this.updatePlayerMoney();
 
     if (fishItems.length === 0) {
-      // Display a message if no fish to sell
       const noFishMessage = document.createElement("p");
       noFishMessage.innerText = "You have no fish to sell!";
-      this.marketItemsContainer.appendChild(noFishMessage);
+      this.marketSellItemsContainer.appendChild(noFishMessage);
     } else {
-      // Create an element for each fish item
       fishItems.forEach((item) => {
         const itemElement = document.createElement("div");
         itemElement.className = "market-item";
 
         itemElement.innerHTML = `
-            <img src="${item.img}" alt="${item.name}">
-            <div>
-              <p><strong>${item.name}</strong></p>
-              <p>Quantity: ${item.quantity}</p>
-              <p>Value per unit: $${item.value}</p>
-            </div>
-            <button class="sell-button">Sell All</button>
-          `;
+          <img src="${item.img}" alt="${item.name}">
+          <div>
+            <p><strong>${item.name}</strong></p>
+            <p>Quantity: ${item.quantity}</p>
+            <p>Value per unit: $${item.value}</p>
+          </div>
+          <button class="sell-button">Sell All</button>
+        `;
 
         // Add event listener for the sell button
         const sellButton = itemElement.querySelector(".sell-button");
@@ -76,28 +96,75 @@ class MarketUI {
           this.game.marketMechanic.startSell(item)
         );
 
-        this.marketItemsContainer.appendChild(itemElement);
+        this.marketSellItemsContainer.appendChild(itemElement);
       });
     }
   }
 
-  sellFish(item) {
-    // Calculate the total value
-    const totalValue = item.quantity * item.value;
+  renderBuyItems() {
+    // Clear the container
+    this.marketBuyItemsContainer.innerHTML = "";
 
-    // Update the player's money
-    this.game.playerMoney += totalValue;
+    // Sample items to buy
+    const itemsForSale = [
+      {
+        type: "Fish",
+        name: "Goldfish",
+        quantity: 1,
+        value: 10,
+        img: "./assets/goldfish.png",
+      },
+      {
+        type: "Fish",
+        name: "Tuna",
+        quantity: 1,
+        value: 20,
+        img: "./assets/tuna.png",
+      },
+    ];
 
-    // Remove the item from the inventory
-    item.quantity = 0;
+    itemsForSale.forEach((item) => {
+      const itemElement = document.createElement("div");
+      itemElement.className = "market-item";
 
-    // Remove items with zero quantity
-    this.game.localPlayer.inventory = this.game.localPlayer.inventory.filter(
-      (i) => i.quantity > 0
-    );
-    // Update the UI
-    this.renderMarketItems();
-    this.game.uiManager.inventoryUI.renderInventory();
+      itemElement.innerHTML = `
+        <img src="${item.img}" alt="${item.name}">
+        <div>
+          <p><strong>${item.name}</strong></p>
+          <p>Price: $${item.value}</p>
+        </div>
+        <button class="buy-button">Buy</button>
+      `;
+
+      // Add event listener for the buy button
+      const buyButton = itemElement.querySelector(".buy-button");
+      buyButton.addEventListener("click", () => this.buyItem(item));
+
+      this.marketBuyItemsContainer.appendChild(itemElement);
+    });
+  }
+
+  buyItem(item) {
+    if (this.game.localPlayer.balance >= item.value) {
+      // Deduct the item cost from the player's balance
+      this.game.localPlayer.balance -= item.value;
+
+      // Add the item to the player's inventory
+      const existingItem = this.game.localPlayer.inventory.find(
+        (i) => i.name === item.name
+      );
+      if (existingItem) {
+        existingItem.quantity += item.quantity;
+      } else {
+        this.game.localPlayer.inventory.push({ ...item });
+      }
+
+      // Update the UI
+      this.updatePlayerMoney();
+      this.game.uiManager.inventoryUI.renderInventory();
+    } else {
+      alert("Not enough money to buy this item!");
+    }
   }
 
   updatePlayerMoney() {

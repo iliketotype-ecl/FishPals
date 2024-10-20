@@ -7,16 +7,17 @@ class InventoryUI {
 
   renderInventory() {
     this.inventoryContainer.innerHTML = ""; // Clear existing items
-
-    this.game.localPlayer.inventory.forEach((item) => {
-      const itemElement = document.createElement("div");
-      itemElement.className = "inventory-item";
-      itemElement.innerHTML = `
+    if (this.game.localPlayer.inventory) {
+      this.game.localPlayer.inventory.forEach((item) => {
+        const itemElement = document.createElement("div");
+        itemElement.className = "inventory-item";
+        itemElement.innerHTML = `
           <img src="${item.img}" alt="${item.name}">
           <span>${item.name} x${item.quantity}</span>
         `;
-      this.inventoryContainer.appendChild(itemElement);
-    });
+        this.inventoryContainer.appendChild(itemElement);
+      });
+    }
   }
 
   draw(ctx) {
