@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>FishPals</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="window">
+      <div class="main" id="stage">
+        <canvas width="480" height="320"></canvas>
+      </div>
+      <div id="balance-container" class="balance-container"></div>
+      <div id="inventory-container" class="inventory-container"></div>
+      <div id="fishing-popup" style="display: none">
+        <div id="fishing-popup-content">
+          <h2></h2>
+        </div>
+        <div class="progress-bar-container">
+          <div class="progress-bar" id="progress-bar"></div>
+          <div class="progress-bar-text" id="progress-bar-text"></div>
+        </div>
+      </div>
+      <!-- Fish Market Modal -->
+      <div id="fish-market-modal" class="modal">
+        <div class="modal-content">
+          <span id="fish-market-close" class="close">&times;</span>
+          <h2>Fish Market</h2>
+          <div id="market-items-container">
+            <!-- Fish for selling will be displayed here -->
+          </div>
+          <h3>Your Money: $<span id="player-money">0</span></h3>
+        </div>
+      </div>
+
+      <audio id="background-music" loop preload="auto">
+        <source src="./assets/ambience-1-ogg.ogg" type="audio/ogg" />
+        Your browser does not support the audio element.
+      </audio>
+
+      <button id="market-button">Market</button>
+
+      <!-- Mute Button -->
+      <button id="mute-button">Mute</button>
+
+      <!-- Volume Slider -->
+      <input
+        type="range"
+        id="volume-slider"
+        min="0"
+        max="1"
+        step="0.01"
+        value="0.5"
+      />
+    </div>
+    <script src="./js/main-2.js" type="module"></script>
+  </body>
+</html>

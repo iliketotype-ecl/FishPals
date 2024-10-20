@@ -1,0 +1,11 @@
+Multipayer Fishing Tycoon
+
+2D --
+
+Chat in game
+Global Game state
+Dynamic map generation
+
+- need to manage player balances
+- local.storage cookies to save
+- chat system
